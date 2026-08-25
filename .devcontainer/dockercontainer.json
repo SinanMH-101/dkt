@@ -1,0 +1,10 @@
+{
+  "name": "Khajah DKT legacy environment",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "containerEnv": {
+    "THEANO_FLAGS": "device=cpu,floatX=float32"
+  },
+  "remoteUser": "root"
+}
