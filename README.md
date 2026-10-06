@@ -74,10 +74,23 @@ toolchain (`invalid register for .seh_savexmm`), while retaining C compilation.
 These environment settings apply only to the current terminal; set them again
 when opening a new terminal.
 
-The first run can take time to compile. Training then prints percentage progress
-and accumulated loss. The loss accumulates across batches, so an increasing
+The first run can take time to compile. Training then updates a single progress
+line with percentage progress and accumulated loss. The loss accumulates across batches, so an increasing
 number alone does not indicate worsening performance. After training reaches
-100%, the script evaluates the test set and prints `Epoch: 0, Test AUC: ...`.
+100%, the script evaluates the test set and prints its test AUC. After all epochs
+finish, it prints a summary table with the dataset filename, completed epoch
+count, and final epoch's test AUC:
+
+```text
+Training complete
++-----------------+------------------+----------------+
+| Dataset         | Completed epochs | Final test AUC |
++-----------------+------------------+----------------+
+| assistments.txt | 1                | 0.831561       |
++-----------------+------------------+----------------+
+```
+
+The AUC above is illustrative; your results may vary.
 
 ## 5. Run longer training
 
@@ -109,10 +122,56 @@ This changes the model size and batching, so results may differ from the default
   leaves training slow.
 - **`invalid register for .seh_savexmm`:** use the exact `THEANO_FLAGS` setting
   above before starting a new Python process.
-- **`class_mode` is deprecated:** this warning from legacy Keras does not stop
-  training.
+- The script omits Keras's deprecated `class_mode` argument and suppresses only
+  Theano's advisory warning about the explicit `-march` CPU target. Other
+  warnings and compilation errors remain visible.
 
 # Data Format
+## Convert COMP1350 data
+
+The converter uses a separate Python 3.11 environment with pandas and openpyxl.
+The `dkt-legacy` environment runs Python 2.7 and is used for training.
+Both environments use your existing Miniconda installation; Codex is not required.
+
+From the project folder, create the converter environment once:
+
+```powershell
+conda create -n dkt-convert python=3.11 pip -y
+conda run -n dkt-convert python -m pip install -r scripts/requirements-convert.txt
+```
+
+Run the converter whenever the source workbook changes. This command also works
+while `dkt-legacy` is active and does not change the active environment:
+
+```powershell
+conda run -n dkt-convert python scripts/convert_comp1350.py
+```
+
+It reads `Sinan_Dataset.xlsx` and writes `data/comp1350/comp1350.txt`,
+`comp1350_split.txt`, and `comp1350_summary.json`. It keeps consistent explicitly
+graded steps, excludes sequences shorter than two interactions, and splits by
+student using a fixed seed. Timestamp ties are ordered by step ID; chronology
+within those ties has not been verified.
+
+Optional converter settings:
+
+```powershell
+conda run -n dkt-convert python scripts/convert_comp1350.py --help
+conda run -n dkt-convert python scripts/convert_comp1350.py --input Sinan_Dataset.xlsx --sheet Sinan_Data --train-fraction 0.8 --seed 8240 --min-length 2
+```
+
+Check the printed summary and `comp1350_summary.json` for exclusions, sequence
+lengths and question IDs found only in the test set. The split file contains one
+assignment per student in ascending converted student-ID order. Generated data
+are ignored by Git; the source workbook is never modified.
+
+Train using Python 2.7 in `dkt-legacy`:
+
+```powershell
+conda activate dkt-legacy
+python dkt.py --dataset data/comp1350/comp1350.txt --splitfile data/comp1350/comp1350_split.txt --epochs 1
+```
+
 The model is contained within one script. It expects two files: a dataset file and
 a split file. The dataset file contains student, skill and performance information whilst the split file specifies which students belong to the training set. 
 
