@@ -127,6 +127,9 @@ This changes the model size and batching, so results may differ from the default
   warnings and compilation errors remain visible.
 
 # Data Format
+For constructed synthetic data, see [scripts/SYNTHETIC.md](scripts/SYNTHETIC.md).
+For IDETrace execution data, see [scripts/IDETRACE.md](scripts/IDETRACE.md).
+
 ## Convert COMP1350 data
 
 The converter uses a separate Python 3.11 environment with pandas and openpyxl.

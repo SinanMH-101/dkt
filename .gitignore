@@ -19,6 +19,9 @@ node_modules/
 # Local dataset (keep the bundled Assistments text files tracked)
 /Sinan_Dataset.xlsx
 /data/comp1350/
+/data/synthetic*/
+/data/raw/
+/data/idetrace*/
 
 # Local configuration and temporary files
 .env
@@ -27,3 +30,4 @@ node_modules/
 Thumbs.db
 ~$*
 tmp
+output

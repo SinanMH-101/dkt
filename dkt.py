@@ -124,7 +124,10 @@ def main():
         batch_activations = model.predict_on_batch(X)
         skill = Y[:,:,0:num_skills]
         obs = Y[:,:,num_skills]
-        y_pred = np.squeeze(np.array(batch_activations))
+        # Legacy Keras may wrap the output in a list. Preserve batch, time
+        # and skill dimensions: squeeze removes the skill axis when there
+        # is only one skill (and can also remove a singleton batch axis).
+        y_pred = np.asarray(batch_activations).reshape(skill.shape)
 
         rel_pred = np.sum(y_pred * skill, axis=2)
 
