@@ -4,6 +4,19 @@ This project trains an LSTM to predict student responses and evaluates it on
 held-out students. The implementation follows the DKT model used in the
 [Khajah, Lindsey, and Mozer comparison with Bayesian Knowledge Tracing](https://www.cs.colorado.edu/~mozer/Research/Selected%20Publications/reprints/KhajahLindseyMozer2016.pdf).
 
+## Table of contents
+
+- [Run on Windows](#run-on-windows)
+  - [Run all six bundled datasets](#run-all-six-bundled-datasets)
+  - [Run one dataset at a time](#run-one-dataset-at-a-time)
+  - [Run DBE-KT22](#run-dbe-kt22)
+- [Results](#results)
+- [Review DKT results with Gemini](#review-dkt-results-with-gemini)
+  - [Set up and test the API key](#set-up-and-test-the-api-key)
+  - [Run a review](#run-a-review)
+  - [Read the assessment](#read-the-assessment)
+- [Repository layout](#repository-layout)
+
 ## Run on Windows
 
 Clone this repository and open PowerShell in the repository root. The
