@@ -7,13 +7,12 @@ held-out students. The implementation follows the DKT model used in the
 ## Run on Windows
 
 Clone this repository and open PowerShell in the repository root. The
-prepared data and fixed student splits for all six experiments are included.
-Install Miniconda, then run:
+prepared data and fixed student splits for the six bundled experiments are
+included. Install Miniconda, then create and activate the training environment.
 
 ```powershell
 conda env create -f environment.yml
 conda activate dkt-legacy
-.\run-experiments.ps1
 ```
 
 If PowerShell does not recognize Conda, run `conda init powershell` from
@@ -21,28 +20,64 @@ Anaconda Prompt and reopen PowerShell. The environment installs Python 2.7,
 the pinned training dependencies, and Theano's Windows compiler. Create
 the environment once and activate it in each new session.
 
-The default run trains all six experiments for **50 epochs each**. To check
-that the inputs are present or run a short one-epoch test:
+### Run all six bundled datasets
+
+Run the script without a dataset argument. It trains each dataset in sequence
+for **50 epochs** by default.
 
 ```powershell
 .\run-experiments.ps1 -Check
+.\run-experiments.ps1
+```
+
+The first command verifies that the prepared data and split files exist.
+Add `-Epochs 1` to the second command for a short run across all six.
+
+### Run one dataset at a time
+
+Choose the command for the dataset you want.
+
+```powershell
+.\run-experiments.ps1 -Dataset assistments
+.\run-experiments.ps1 -Dataset comp1350
+.\run-experiments.ps1 -Dataset idetrace
+.\run-experiments.ps1 -Dataset mathe
+.\run-experiments.ps1 -Dataset synthetic
+.\run-experiments.ps1 -Dataset piech
+```
+
+`synthetic` selects the locally generated data. `piech` selects the
+original five-concept matrix. For a short test of one dataset, specify its
+name and an epoch count.
+
+```powershell
 .\run-experiments.ps1 -Dataset idetrace -Epochs 1
 ```
 
-To compare several epoch counts in one table, pass a comma-separated list:
+To run a subset and compare several epoch counts, pass comma-separated lists.
 
 ```powershell
 .\run-experiments.ps1 -Dataset comp1350,idetrace -Epochs 10,20,50
 ```
 
 Each selected dataset trains once up to the largest epoch count. The runner
-reports test AUC at each requested epoch from that same training run. Omit
-`-Dataset` to include all six experiments.
+reports test AUC at each requested epoch from that same training run.
 
 If the legacy compiler fails, add `-NoCompiler` to use Theano's slower
 Python implementation. If PowerShell blocks the script, run
 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run-experiments.ps1`
 from the activated environment.
+
+### Run DBE-KT22
+
+To include DBE-KT22, prepare it locally and run it separately from the six
+bundled experiments. [DBE-KT22 preparation instructions](data/README.md#dbe-kt22)
+
+```powershell
+$env:KERAS_BACKEND = 'theano'
+$env:THEANO_FLAGS = 'device=cpu,floatX=float32,gcc.cxxflags=-march=core2'
+python dkt.py --dataset data/dbekt22/dbekt22.txt --splitfile data/dbekt22/dbekt22_split.txt --epochs 50 --hiddenunits 32 --batchsize 20 --timewindow 50
+```
 
 ## Results
 
