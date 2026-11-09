@@ -1,3 +1,5 @@
+"""Print COMP1350 workbook schema and quiz event integrity checks as JSON lines."""
+
 import json
 import pandas as pd
 
@@ -17,6 +19,7 @@ for sheet in book.sheet_names:
     }
     print(json.dumps(out, default=str))
 
+# Restrict the event-level audit to rows associated with a quiz attempt.
 df = pd.read_excel(path, sheet_name="Sinan_Data")
 df = df[df["quizattemptid"].notna()].copy()
 key_stats = df.groupby("uniquekey").agg(
@@ -42,6 +45,7 @@ print(json.dumps({
     "time_max": pd.to_datetime(df["timestamp"].max(), unit="s").isoformat(),
 }, default=lambda x: x.item() if hasattr(x, "item") else str(x)))
 
+# Collapse metadata rows to one record per step to count graded interactions.
 step = df.dropna(subset=["attemptstepid"]).groupby("attemptstepid").agg(
     participant=("Participant-ID", "first"), participant_n=("Participant-ID", "nunique"),
     question=("questionid", "first"), question_n=("questionid", "nunique"),

@@ -15,13 +15,18 @@ node_modules/
 *.model_weights
 *.history
 *.preds
+*.gemini.json
 
-# Local dataset (keep the bundled Assistments text files tracked)
+# Raw source files and auxiliary exports. Prepared DKT text files belong in Git.
 /Sinan_Dataset.xlsx
-/data/comp1350/
-/data/synthetic*/
 /data/raw/
-/data/idetrace*/
+/data/dbekt22/
+/data/synthetic-original/naive_*.csv
+/data/synthetic-original/info/
+/data/idetrace/idetrace_runs.csv
+/data/**/synthetic_ground_truth.csv
+/data/**/synthetic_metadata.json
+/data/**/*.log
 
 # Local configuration and temporary files
 .env

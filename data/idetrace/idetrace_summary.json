@@ -1,0 +1,37 @@
+{
+  "source": "deployment_1.json",
+  "task": "GradeBook",
+  "representation": "One interaction per test execution; exercise_id=0 for this deployment task; correct iff every test passes",
+  "input_participants": 190,
+  "test_result_events": 690,
+  "valid_runs_before_length_filter": 690,
+  "exclusions": {
+    "participants_below_min_length": 57,
+    "runs_below_min_length": 37
+  },
+  "students": 133,
+  "interactions": 653,
+  "exercises": 1,
+  "correct_runs": 176,
+  "incorrect_runs": 477,
+  "train_students": 106,
+  "test_students": 27,
+  "train_interactions": 538,
+  "test_interactions": 115,
+  "sequence_lengths": {
+    "min": 2,
+    "median": 4,
+    "max": 34
+  },
+  "same_timestamp_runs_after_first": 0,
+  "multi_session_students": 0,
+  "ordering": "timestamp, then source event index for ties; ties do not prove within-timestamp chronology",
+  "limitations": [
+    "Predicts repeated attempts on one programming task, not cross-concept learning",
+    "Task label is supplied by the user; TASK_SELECT is text selection, not reliable task switching",
+    "No original participant IDs, names, code or chat text are exported"
+  ],
+  "seed": 8240,
+  "train_fraction": 0.8,
+  "min_length": 2
+}

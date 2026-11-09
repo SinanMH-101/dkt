@@ -1,0 +1,32 @@
+{
+  "source": "Sinan_Dataset.xlsx",
+  "sheet": "Sinan_Data",
+  "raw_rows": 88255,
+  "rows_missing_step_id": 50,
+  "distinct_steps": 27181,
+  "excluded_ungraded_steps": 20810,
+  "excluded_graded_steps_missing_required_fields": 54,
+  "excluded_conflicting_grades": 1,
+  "excluded_students_below_min_length": 9,
+  "excluded_interactions_below_min_length": 9,
+  "interactions": 6307,
+  "students": 1158,
+  "question_ids": 29,
+  "sequence_lengths": {
+    "min": 2,
+    "median": 6.0,
+    "max": 12
+  },
+  "train_students": 926,
+  "test_students": 232,
+  "train_interactions": 5042,
+  "test_interactions": 1265,
+  "correct_interactions": 4445,
+  "test_only_question_ids": [],
+  "timestamp_ties_after_first": 5114,
+  "ordering": "timestamp then attemptstepid; step ID is a deterministic tie-breaker, not verified chronology within timestamp ties",
+  "exercise_representation": "questionid (question variants kept separate)",
+  "seed": 8240,
+  "train_fraction": 0.8,
+  "min_length": 2
+}

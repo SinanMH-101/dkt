@@ -1,0 +1,1008 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{COMP8240 Final Report}
+
+\author{Sinan Mustanjid Haque \\
+  School of Computing, Macquarie University \\
+  \texttt{sinanmustanjid.haque@students.mq.edu.au} \\
+}
+
+% \author{First Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\\And
+%   Second Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\}
+
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+
+
+\section{Description of Paper and Justification}
+
+
+This project is based on \textit{Deep Knowledge Tracing} by \citet{piech2015deep}, which investigates the use of recurrent neural networks to model student knowledge and predict future performance.\footnote{\url{https://papers.nips.cc/paper/5654-deep-knowledge-tracing.pdf}} The model processes sequences of exercise attempts and correct or incorrect responses, learning a representation of the student's knowledge that changes with each interaction. The paper examines both standard recurrent neural networks and Long Short-Term Memory (LSTM) networks, demonstrating that useful relationships between exercises can be learned without explicit expert-defined concept mappings.
+
+\subsection{Evaluation Framework and Results}
+
+The authors evaluate DKT by testing how well it predicts whether a student will answer their next exercise correctly, using the student's previous exercise attempts and responses. They conduct experiments on simulated student interactions, Khan Academy mathematics data, and the ASSISTments 2009--2010 Skill Builder dataset. For the two real-world datasets, they use five-fold cross-validation: the data are divided into five groups, and the model is trained on four groups and tested on the remaining group. This process is repeated until each group has been used for testing, reducing dependence on a single division of the data.
+
+Performance is measured using the area under the receiver operating characteristic curve (AUC). This measures how well the model assigns higher predicted probabilities to responses that are actually correct than to those that are incorrect. An AUC of 0.5 indicates performance equivalent to random ranking, while 1.0 indicates perfect ranking. AUC therefore measures the model's ability to distinguish correct from incorrect responses, rather than the percentage of answers predicted correctly.
+
+The LSTM model achieved an AUC of 0.85 on Khan Academy and 0.86 on ASSISTments, compared with 0.68 and 0.67 respectively for standard Bayesian Knowledge Tracing \citep{piech2015deep}. These results show that DKT was better at distinguishing future correct and incorrect responses than the standard Bayesian approach evaluated in the paper.
+\subsection{Justification for Paper Choice}
+
+The paper was selected because of its publication quality and how influential this paper was on subsequent research. It was published at the Conference on Neural Information Processing Systems (NeurIPS), which received an A* ranking in the CORE conference rankings.\footnote{\url{https://portal.core.edu.au/conf-ranks/98/}} At the time of writing the project's final report, the paper had approximately 3050 citations on Google Scholar, indicating substantial research attention and subsequent use. Together, the venue's ranking and the paper's citation record support its selection as an influential contribution to knowledge-tracing research.
+
+
+\section{Original Datasets}
+
+\citet{piech2015deep} evaluated DKT on three datasets: synthetic student interactions, Khan Academy mathematics data, and the ASSISTments 2009--2010 Skill Builder dataset. Together, these allow the model to be tested on both simulated learning and real student activity.
+
+\subsection{Synthetic Dataset}
+
+For each simulation run, the authors generated 2,000 training students
+and 2,000 test students. All students in a run completed the same
+ordered sequence of 50 exercises. The experiments varied the number
+of underlying concepts from one to five.
+
+Each simulated student had an ability level for each concept, and each
+exercise had a difficulty level. The probability of a correct response
+depended on both, with a fixed guessing parameter of 0.25. After an
+exercise, the student's ability for the relevant concept increased.
+The authors withheld the concept labels from the models to test whether
+DKT could identify relationships between exercises from the sequence
+of responses \citep{piech2015deep}.
+
+Each row in the released CSV records one student's responses in
+exercise order. Because all students completed the same sequence,
+the column position identifies the exercise. For example, the first
+student in Table~\ref{tab:original-synthetic-snapshot} answered the
+first exercise incorrectly and the next two correctly.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\hline
+ & \multicolumn{6}{c}{Exercise position} \\
+Student & 1 & 2 & 3 & 4 & 5 & 6 \\
+\hline
+1 & 0 & 1 & 1 & 0 & 0 & 1 \\
+2 & 1 & 0 & 1 & 0 & 0 & 0 \\
+3 & 0 & 1 & 1 & 1 & 1 & 1 \\
+\hline
+\end{tabular}
+\caption{First six responses for the first three simulated students
+in the original five-concept dataset. Student numbers indicate row
+positions in the CSV. A value of 1 means correct and 0 means incorrect.}
+\label{tab:original-synthetic-snapshot}
+\end{table}
+
+The synthetic CSV files are publicly available
+in the original authors' repository.\footnote{\href{https://github.com/chrispiech/DeepKnowledgeTracing/tree/master/data/synthetic}{Original synthetic data files.}
+The excerpt is from \href{https://github.com/chrispiech/DeepKnowledgeTracing/blob/master/data/synthetic/naive_c5_q50_s4000_v0.csv}{the first five-concept CSV}.}
+
+\subsection{Khan Academy Dataset}
+
+The Khan Academy dataset contains approximately 1.4 million mathematics
+interactions from 47,495 students across 69 exercise types in the
+eighth-grade Common Core curriculum. Students could choose different
+topics and follow different paths through the material, providing a
+test of DKT on real learning histories \citep{piech2015deep}.
+
+This dataset is not publicly available. Access
+to the anonymised records was restricted to the original researchers
+under a privacy agreement, so this project could not replicate the
+Khan Academy experiment \citep{piech2015deep}.
+
+\subsection{ASSISTments Dataset}
+
+ASSISTments is an online mathematics tutoring platform that combines
+practice with assessment. The 2009--2010 Skill Builder dataset records
+students working through problems until they meet a mastery criterion.
+The original DKT paper reports approximately 526,000 responses from
+15,931 students across 124 exercise tags \citep{piech2015deep}.
+
+For the replication, I used the prepared \texttt{assistments.txt} file
+distributed with the implementation by \citet{khajah2016deep}.
+Each row contains three values separated by spaces: a student ID, a
+skill ID, and a binary outcome. For example, \texttt{0 7 1} records a
+correct response by student~0 on an exercise tagged with skill~7.
+Table~\ref{tab:assistments-formats} shows the first six rows of the file.
+
+The script groups rows by student and preserves their order in the file.
+This gives DKT a history of which skills each student practised and how
+they responded. In the example, the five rows for student~1 record
+separate incorrect responses on exercises tagged with the same skill.
+A separate split file specifies which students are used for training
+and which are held out for testing.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}ccc@{}}
+\hline
+Student ID & Skill ID & Correct \\
+\hline
+0 & 7  & 1 \\
+1 & 82 & 0 \\
+1 & 82 & 0 \\
+1 & 82 & 0 \\
+1 & 82 & 0 \\
+1 & 82 & 0 \\
+\hline
+\end{tabular}
+\caption{First six rows of the prepared ASSISTments input file.
+Column headings are added for readability. A value of 1 indicates
+a correct response and 0 indicates an incorrect response.}
+\label{tab:assistments-formats}
+\end{table}
+
+The Skill Builder dataset is publicly
+available from ASSISTments.\footnote{\href{https://sites.google.com/site/assistmentsdata/home/2009-2010-assistment-data/skill-builder-data-2009-2010}{ASSISTments 2009--2010 Skill Builder download page.}}
+The prepared interaction and student split files are publicly available
+in the implementation repository.\footnote{\url{https://github.com/mmkhajah/dkt}}
+
+\subsection{Interaction Format}
+
+DKT treats each student's attempts as an ordered sequence. Each
+interaction tells the model what the student practised and whether
+they answered correctly. Table~\ref{tab:interaction-example} shows
+an illustrative sequence for one student.
+
+In the first two steps, the student answers a fractions exercise
+incorrectly and then answers another fractions exercise correctly.
+At step~3, DKT uses those two earlier responses to estimate the
+chance that the student will answer a linear equations exercise
+correctly. The actual result at step~3 is then used to evaluate that
+prediction and becomes part of the student's history for predicting
+the response at step~4. This is why preserving the order of attempts
+matters.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{clc}
+\hline
+Step & Exercise tag & Correct \\
+\hline
+1 & Fractions        & 0 \\
+2 & Fractions        & 1 \\
+3 & Linear equations & 0 \\
+4 & Fractions        & 1 \\
+\hline
+\end{tabular}
+\caption{Illustrative interaction sequence for one student.
+A value of 1 indicates a correct response and 0 indicates an
+incorrect response.}
+\label{tab:interaction-example}
+\end{table}
+
+\section{Replication of Original Work}
+
+\subsection{Choice of Implementation}
+
+The first step in replication was to examine the source code released by the original authors.\footnote{\url{https://github.com/chrispiech/DeepKnowledgeTracing}} This implementation uses an older Lua-based software stack. Although I was able to run the code, adapting it for further experiments presented practical difficulties. More importantly, the repository provides only the standard recurrent neural network implementation, rather than the Long Short-Term Memory (LSTM) model used to obtain the stronger results reported by \citet{piech2015deep}.
+
+To address this limitation, I obtained permission from the unit convenor to use the Python LSTM implementation released by \citet{khajah2016deep} for their follow-up study, \textit{How Deep is Knowledge Tracing?}\footnote{\url{https://github.com/mmkhajah/dkt}} This implementation uses Keras and Theano and includes the ASSISTments 2009--2010 Skill Builder dataset. Although it also relies on older software libraries, it provided a practical basis for running the LSTM model and applying a consistent implementation across the project datasets.
+
+In preliminary testing for the proposal, I obtained an ASSISTments AUC of approximately 0.83, compared with the original paper's reported AUC of 0.86. A subsequent longer training run achieved approximately 0.84, reducing the difference from the published result to 0.02 AUC units. These results supported the feasibility of using this implementation. Thus, with the convenor's approval, this implementation was used for the remaining project evaluations.
+
+
+\subsection{Execution Environment}
+
+The initial feasibility test was carried out using GitHub Codespaces. I subsequently configured the implementation to run locally on Windows through the VS Code terminal. Since the code depends on Python 2 syntax and older machine-learning libraries, I used an isolated Miniconda environment named \texttt{dkt-legacy}, running Python 2.7.18.
+
+The environment used Keras 0.3.3 and Theano 0.8.2, together with NumPy 1.16.6, SciPy 1.2.3, scikit-learn 0.20.4 and h5py 2.10.0. These versions were recorded in a requirements file to make the setup repeatable. Keras defines the neural network, while Theano performs the numerical computations required for training. Training was configured to run on the CPU using 32-bit floating-point calculations.
+
+A separate Python 3.11 environment was documented for data conversion, using pandas 2.2.3 and openpyxl 3.1.5. This allowed modern data-processing tools to be used without changing the older environment required by the model. The repository also contains a Python 2.7.18 container configuration as an alternative environment specification.
+
+\subsection{Software Compatibility Fixes}
+
+Several changes were required to make the implementation run successfully in the local environment. First, I removed the obsolete \texttt{class\_mode="binary"} argument from the model compilation call. The model continued to use its existing binary cross-entropy loss function and RMSprop optimiser.
+
+Theano also required a compatible C++ compiler for its compiled numerical operations. I installed the MinGW toolchain and \texttt{libpython} through Conda. However, compilation encountered a Windows assembler error involving \texttt{.seh\_savexmm}. I addressed this by setting Theano's compiler option to \texttt{gcc.cxxflags=-march=core2}, specifying a CPU target compatible with the older toolchain. I also explicitly selected Theano as the Keras backend and configured CPU execution with \texttt{floatX=float32}. 
+
+\subsection{Prediction-Shape Fix}
+
+An additional issue affected prediction on datasets containing only one exercise type. The original implementation used \texttt{np.squeeze} to remove dimensions of size one from the prediction array. However, when only one exercise type was present, this also removed the exercise dimension required by the subsequent calculation.
+
+I replaced this operation with an explicit reshape that preserves the batch, time and exercise dimensions. This allows the code to select the predicted probability for the relevant exercise even when the dataset contains only one exercise type. The change addresses how predictions are handled; it does not introduce a different model architecture or training objective.
+
+\subsection{Training Progress and Result Reporting}
+
+I improved the terminal display to make longer CPU runs easier to
+monitor. The original implementation printed a separate line for each
+completed batch. I replaced this with a single updating line that shows
+the percentage of training completed and the accumulated loss within
+the current epoch. I also added an epoch counter. Because the loss is
+summed across batches, it typically increases as more batches are
+processed during an epoch.
+
+At the end of training, the script prints a summary table with the
+dataset filename, the number of completed epochs, and the final test
+AUC. Figure~\ref{fig:assistments-training-summary} shows the progress
+line and summary table for an ASSISTments run.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/assistments-training-summary.png}
+    \caption{Terminal output at the end of an ASSISTments run, showing the updated result view. The
+    summary reports 10 completed epochs and a final test AUC of 0.841732.}
+    \label{fig:assistments-training-summary}
+\end{figure}
+
+The script also saves the model weights, a training history with the
+loss and test AUC for each completed epoch, and a prediction file with
+the predicted probabilities and observed outcomes for the test
+responses.
+
+\subsection{Replication Procedure}
+
+I used the adapted LSTM implementation by \citet{khajah2016deep}
+to evaluate ASSISTments and the original five-concept synthetic data.
+Both experiments used 200 hidden units and measured AUC on students
+held out from training.
+
+\paragraph{ASSISTments.}
+I used the bundled data and split files, with 3,361 students for
+training and 856 for testing. I trained for 10 epochs with a batch
+size of 5 and a window of 100 interactions.
+
+\paragraph{Original synthetic data.}
+I converted one of the authors' five-concept CSV files to the
+three-column DKT format, using each column position as the exercise
+ID. I used seed 8240 to assign 2,000 students to training and 2,000
+to testing. I ran separate 10- and 50-epoch experiments with a batch
+size of 100 and a window of 50 interactions.
+
+\subsection{Replication Results and Comparison}
+
+The original paper does not specify how many epochs were used for
+the results in Table~1 \citep{piech2015deep}. I ran separate 10- and
+50-epoch experiments on ASSISTments and the original five-concept
+synthetic dataset. Table~\ref{tab:replication-auc} compares my results
+with the published LSTM scores and baseline models.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lrr@{}}
+\hline
+Model & ASSISTments & Synthetic \\
+\hline
+My DKT, 10 epochs   & 0.841732 & 0.705676 \\
+My DKT, 50 epochs   & 0.844855 & 0.810868 \\
+Published LSTM DKT  & 0.86 & 0.75 \\
+Published BKT       & 0.67 & 0.54 \\
+Published BKT*      & 0.69 & --- \\
+Marginal baseline   & 0.62 & --- \\
+\hline
+\end{tabular}
+\caption{Test AUC for the replication runs and the results reported
+by \citet{piech2015deep}. BKT* is the best previously reported BKT
+result cited in the original paper. Dashes indicate that no
+numerical result was reported.}
+\label{tab:replication-auc}
+\end{table}
+
+On ASSISTments, the 50-epoch run reached 0.844855 AUC, about 0.015
+below the published LSTM result of 0.86. Both runs scored more than
+0.15 above the strongest published baseline, BKT* at 0.69. They also
+exceeded standard BKT (0.67) and the marginal baseline (0.62).
+Appendix~\ref{app:assistments-results} shows the terminal output
+for both runs.
+
+On the synthetic dataset, the 10-epoch run scored about 0.044 below
+the published LSTM result of 0.75, while the 50-epoch run scored
+about 0.061 above it. Both scores exceeded the published BKT baseline
+of 0.54, by about 0.166 and 0.271 AUC respectively. My comparison used
+one released simulation and one student split, while the original
+study repeated the experiment across 20 simulations per concept count.
+
+Within the 50-epoch synthetic run, test AUC rose from 0.721568 at
+epoch~10 to 0.810868 at epoch~50. The separate 10-epoch run reached
+0.705676 on the same split. Random weight initialisation and shuffling
+of the training sequences may explain some of this variation.
+Appendix~\ref{app:synthetic-results} shows the terminal output for
+both synthetic runs.
+
+
+
+
+\subsection{Repository and Reproducibility}
+
+The project code, dependency specifications and execution instructions are maintained in the project repository.\footnote{\url{https://github.com/SinanMH-101/dkt}} I expanded the README to document environment creation, dependency installation, compiler configuration, training commands and troubleshooting.
+
+The documentation also explains the required three-column interaction format and the separate student-assignment file. Dataset preparation scripts support applying the implementation to additional data; their processing decisions are described in the new-data construction section. Local student data and generated training outputs are excluded from version control through the repository's ignore rules
+
+
+\section{Construction of New Data}
+
+I prepared three existing datasets for DKT: Macquarie University's
+COMP1350 quiz records, the first deployment of IDETrace, and the
+DBE-KT22 database exercise records. I also generated a synthetic
+dataset with known relationships between questions. The three
+existing datasets capture real student activity, while the synthetic
+dataset provides a controlled setting in which the underlying
+learning process is known.
+
+\subsection{Common Input Format and Student Splits}
+
+Each dataset was exported as a space-delimited text file containing
+three values per interaction: a student ID, an exercise ID and a
+binary outcome. A value of 1 denotes a correct response, and 0 denotes
+an incorrect response. The rows for each student preserve the order
+of their attempts. A separate file assigns approximately 80\% of
+students to training and 20\% to testing using a fixed seed of 8240.
+All interactions from a student stay in the same partition.
+
+\subsection{COMP1350 Database Quiz Records}
+
+I obtained deidentified quiz records from Macquarie University's
+COMP1350 database course through the course convenor, with approval
+from the data custodian. The source workbook contained 88,255 rows.
+Several rows could describe the same attempt step, so I grouped the
+records by step ID to recover 27,181 distinct steps.
+
+I kept explicitly graded steps with the fields needed to identify the
+student, question and time of the attempt. I checked that the grading
+state agreed with the recorded score and excluded steps with missing
+or inconsistent information. I also excluded students with fewer
+than two usable interactions. Each question variant retained its own
+exercise ID. I ordered attempts by timestamp and used the step ID to
+break ties. This gives a repeatable ordering when timestamps match,
+although the exact order within those ties could not be verified.
+
+The resulting dataset contains 6,307 interactions from 1,158 students
+across 29 question IDs. The median student sequence contains six
+interactions. Table~\ref{tab:comp1350-input} shows an excerpt of the
+prepared input.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}ccc@{}}
+\hline
+Student ID & Question ID & Correct \\
+\hline
+0 & 116623373 & 1 \\
+0 & 116781128 & 1 \\
+0 & 116781141 & 1 \\
+\hline
+\end{tabular}
+\caption{Excerpt from the prepared COMP1350 input. Student IDs were
+reassigned during conversion.}
+\label{tab:comp1350-input}
+\end{table}
+
+\textbf{Availability.} The COMP1350 records were provided for this
+project under restricted access and are not publicly available.
+
+\subsection{IDETrace Programming Interactions}
+
+I downloaded the raw JSON telemetry for the first IDETrace deployment
+from the authors' public repository.\footnote{\href{https://github.com/divadbaroon/TutorTrace_dataset_and_benchmark/tree/main/dataset/raw_telemetry}{IDETrace raw telemetry.}}
+This deployment records students working on a Python programming task
+called \textit{GradeBook}. The source includes many kinds of IDE events,
+but test-result events provide the evidence needed to score an attempt.
+
+I treated each test execution as one interaction. An execution was
+marked correct only when all tests passed. For example, passing three
+out of four tests was recorded as 0, while passing all four was
+recorded as 1. The converter checked the individual test outcomes
+against the reported totals and pass rate. Combining the test results
+into one interaction avoids imposing an artificial order on tests
+from the same execution. Every interaction uses exercise ID~0 because
+this deployment contains one task.
+
+I ordered executions by timestamp, using their position in the source
+log to break ties, and retained repeated runs. After excluding
+participants with fewer than two valid runs, the dataset contained
+653 interactions from 133 students. The median sequence contains
+four runs. Table~\ref{tab:idetrace-input} shows how the converter
+mapped three executions to DKT outcomes. Test counts are shown here
+to explain the conversion and are omitted from the model input.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}cccc@{}}
+\hline
+Student ID & Exercise ID & Tests passed & Correct \\
+\hline
+0 & 0 & 2/4 & 0 \\
+0 & 0 & 3/4 & 0 \\
+0 & 0 & 4/4 & 1 \\
+\hline
+\end{tabular}
+\caption{Selected executions from one IDETrace student. The DKT
+input contains the student ID, exercise ID and correctness columns.}
+\label{tab:idetrace-input}
+\end{table}
+
+\textbf{Availability.} The source telemetry is publicly available
+from the IDETrace authors. The conversion exports reassigned student
+IDs and omits the original participant IDs, code and chat text.
+
+\subsection{DBE-KT22 Database Exercises}
+
+DBE-KT22 contains student attempts from an online exercise system
+used in a database course at the Australian National University
+\citep{abdelrahman2022dbekt22}. I obtained the CSV archive from the
+Australian Data Archive and used its transaction table to construct
+sequences of graded attempts.
+
+The conversion script groups attempts by student, retains each
+question ID as the exercise identifier, and converts the recorded
+answer state to 1 for correct or 0 for incorrect. It orders each
+student's attempts by start time, using the transaction ID to break
+timestamp ties. This makes the ordering repeatable when timestamps
+match, although the actual order within those ties is unknown. The
+converter assigns new numeric student IDs and exports only the
+student ID, question ID and outcome. No new human annotation was
+required because the source records already contained grades.
+
+The source table contained 161,953 attempts. Excluding 47 students
+with only one graded attempt left 161,906 attempts from 1,217
+students across 212 questions. Using seed 8240, I assigned 973
+students to training and 244 to testing. The split kept all attempts
+from a student together.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}ccc@{}}
+\hline
+Student ID & Question ID & Correct \\
+\hline
+0 & 12 & 1 \\
+0 & 19 & 0 \\
+0 & 24 & 1 \\
+\hline
+\end{tabular}
+\caption{Illustrative DBE-KT22 input sequence showing the three
+columns supplied to DKT. The values are invented.}
+\label{tab:dbekt22-input}
+\end{table}
+
+\textbf{Availability.} The source dataset is available through the
+Australian Data Archive under its data-use
+agreement.\footnote{\url{https://doi.org/10.26193/6DZWOH}}
+The conversion script is included in the project repository.
+
+\subsection{Generated Synthetic Dataset}
+
+I wrote a Python generator to create 100,000 interactions from
+2,000 simulated students, each answering 50 questions. The generator
+defines 15 questions across three underlying concepts, with five
+questions per concept. Each student starts with an ability level for
+each concept and has a student-specific learning rate. Questions are
+sampled independently for each student, with replacement.
+
+The probability of a correct response increases when a student's
+ability is high relative to the question's difficulty. The generator
+uses a guessing parameter of 0.25 and samples a binary response
+from the resulting probability. After each attempt, the student's
+ability for the relevant concept increases by their learning rate,
+regardless of the response outcome.
+
+The generator exports question IDs and binary responses as DKT input.
+A separate ground-truth file records the concept, ability and response
+probability associated with each attempt for later analysis.
+Table~\ref{tab:generated-synthetic-input} shows the first three
+interactions for one simulated student. Questions 14 and 13 share
+concept~2, while question~3 belongs to concept~0. The concept column
+comes from the ground-truth file and is withheld from DKT.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}cccc@{}}
+\hline
+Student ID & Question ID & Correct & Concept \\
+\hline
+0 & 14 & 1 & 2 \\
+0 & 13 & 1 & 2 \\
+0 &  3 & 0 & 0 \\
+\hline
+\end{tabular}
+\caption{First three interactions for one student in the locally
+generated dataset. The concept column is shown for explanation.}
+\label{tab:generated-synthetic-input}
+\end{table}
+
+\textbf{Availability.} The generated dataset can be recreated from
+\texttt{scripts/generate\_synthetic.py} in the project repository
+using the recorded parameters and seed.
+
+\section{Results on New Data}
+For each dataset, I trained two separate models, one for 10 epochs
+and one for 50 epochs, and report the final test AUC for each run.
+I use the ASSISTments AUC of 0.86 reported by \citet{piech2015deep}
+as a reference for the results on real student data. For the
+locally generated synthetic dataset, I use the original paper's
+five-concept synthetic AUC of 0.75 as the reference. These comparisons
+provide context for the new results across datasets with different
+student populations and exercise formats.
+
+
+\subsection{LLM as a judge}
+
+I used Google Gemini 3.1 Flash-Lite as a second pass over the DKT
+evaluation results. I added an optional \texttt{--gemini-judge} flag
+that calls a Python~3 script after the final epoch. The script reads
+the saved predictions and training history, recomputes the final
+test AUC, and calculates log loss, the Brier score, and calibration
+summaries. It also compares DKT with a baseline that assigns every
+attempt the same probability, estimated from the training set's
+correct-response rate.
+
+The script sends Gemini the aggregate metrics, the dataset context,
+and the training and test set sizes. Student identifiers and
+individual responses stay local. A fixed prompt asks Gemini whether
+the results are plausible and what should be checked. The script
+prints the verdict and assessment and saves the full response as
+JSON.
+
+The main benefit was identifying which results and assumptions to
+inspect. In a separate one-epoch DBE-KT22 run, Gemini rated the
+results as plausible and suggested checking whether attempts with
+the same timestamp had been ordered correctly. It also described
+the highest probability group as slightly overconfident, although
+the mean predicted probability was about 0.86 and the observed
+correct-response rate was about 0.89. That group was slightly
+underconfident. I used the judge to guide follow-up checks and
+verified its interpretations against the metrics computed locally.
+
+\subsection{COMP1350 Database Quiz Records}
+
+I evaluated DKT on 1,265 graded quiz interactions from 232 held-out
+students. The model used each student's earlier responses to predict
+whether they would answer the next question correctly. The recorded
+quiz grades supplied the test outcomes.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}rrr@{}}
+\hline
+Epochs & COMP1350 AUC & Published ASSISTments AUC \\
+\hline
+10 & 0.739204 & 0.86 \\
+50 & 0.784670 & 0.86 \\
+\hline
+\end{tabular}
+\caption{Final test AUC for the COMP1350 runs. The ASSISTments
+reference is the same published value for both rows
+\citep{piech2015deep}.}
+\label{tab:comp1350-results}
+\end{table}
+
+The 50-epoch run achieved a test AUC of 0.784670, about 0.045 higher
+than the separate 10-epoch run. Within the longer run, AUC increased
+from 0.734366 at epoch~10 to 0.784670 at epoch~50.
+
+The 50-epoch COMP1350 result was about 0.075 AUC below the published ASSISTments result of 0.86.
+
+Appendix~\ref{app:comp1350-results} shows the terminal output for
+both runs.
+
+\subsection{IDETrace Programming Interactions}
+
+I evaluated DKT on 115 test executions from 27 held-out students
+working on the \textit{GradeBook} task. As in the ASSISTments
+replication, I measured test AUC on students held out from training.
+The prediction target differed. In IDETrace, the model predicted
+whether the student's next program execution would pass every test
+for the same task. In ASSISTments, it predicted whether the student
+would answer the next exercise correctly across 124 exercise tags.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}rrr@{}}
+\hline
+Epochs & IDETrace AUC & ASSISTments AUC \\
+\hline
+10 & 0.426267 & 0.841732 \\
+50 & 0.483487 & 0.844855 \\
+\hline
+\end{tabular}
+\caption{Final test AUC on IDETrace and the ASSISTments replication
+at the same epoch counts.}
+\label{tab:idetrace-results}
+\end{table}
+
+The 50-epoch run scored about 0.057 AUC higher than the separate
+10-epoch run, but both scores were below 0.5, the reference point
+for random ranking. At 50 epochs, IDETrace scored about 0.361 AUC
+below ASSISTments. The model therefore did not reliably rank
+successful executions above unsuccessful ones on this test set.
+
+One reason is that the input gave DKT little
+information about what changed between runs. A program that passed
+none of the tests and one that passed three out of four were both
+recorded as 0. If a student fixed a bug between runs but still failed
+one test, the model saw two identical outcomes for the same task.
+The median student sequence contained only four executions, so the
+model also had little history to learn from. With 115 test executions
+from 27 students, the results may be sensitive to which students were
+held out. These factors help explain why prediction was difficult. 
+It also showed that short sequences of pass-or-fail outcomes
+were insufficient for DKT to predict the next successful execution
+reliably.
+
+\subsection{DBE-KT22 Database Exercises}
+
+I evaluated DKT on 33,432 attempts from 244 held-out students.
+The model predicted whether a student's next answer would be correct.
+I used the same metric as in the ASSISTments replication, but the
+exercise identifiers represented individual database questions in
+DBE-KT22 and mathematics skill tags in ASSISTments.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}rrr@{}}
+\hline
+Epochs & DBE-KT22 AUC & ASSISTments AUC \\
+\hline
+10 & 0.776290 & 0.841732 \\
+50 & 0.799563 & 0.844855 \\
+\hline
+\end{tabular}
+\caption{Final test AUC for DBE-KT22 and the ASSISTments replication
+at the same epoch counts.}
+\label{tab:dbekt22-results}
+\end{table}
+
+The 50-epoch DBE-KT22 run achieved a test AUC of 0.799563, about
+0.023 higher than the separate 10-epoch run. Within the longer run,
+AUC rose from 0.777169 at epoch~10 to 0.799563 at epoch~50, showing
+that the model became better at distinguishing correct from
+incorrect responses with more training in that run.
+
+At 50 epochs, DBE-KT22 scored about 0.045 AUC below ASSISTments.
+The two datasets cover different subjects and group exercises
+differently, so the comparison does not isolate the effect of either
+difference. The result shows that the same DKT approach could
+predict responses on university database exercises after training
+on that dataset.
+Appendix~\ref{app:dbekt22-results} shows the terminal output for
+the 10- and 50-epoch DBE-KT22 runs.
+
+
+\subsection{Generated Synthetic Dataset}
+
+I evaluated DKT on the locally generated three-concept dataset
+described in the data construction section.
+Table~\ref{tab:generated-synthetic-input} shows a sample of the
+interactions and their underlying concepts. DKT received the ordered
+question IDs and response outcomes. The concept labels were kept
+separately as ground truth for analysis.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}rrr@{}}
+\hline
+Epochs & Generated AUC & Published AUC \\
+\hline
+10 & 0.688169 & 0.75 \\
+50 & 0.712335 & 0.75 \\
+\hline
+\end{tabular}
+\caption{Final test AUC on the generated dataset. The same published
+five-concept synthetic result is used as a reference for both runs
+\citep{piech2015deep}.}
+\label{tab:generated-synthetic-results}
+\end{table}
+
+The 50-epoch run scored about 0.024 AUC higher than the separate
+10-epoch run. The two runs scored about 0.062 and 0.038 below the
+published synthetic AUC of 0.75, respectively. In the original
+simulation, every student completed the same exercise sequence,
+whereas the new generator sampled questions independently for each
+student. The simulations also differed in the numbers of students,
+questions and concepts. The experiment showed that DKT could distinguish correct from
+incorrect responses on held-out students even when each student
+followed a different question sequence.
+
+Appendix~\ref{app:generated-synthetic-results} shows the terminal
+output for both runs on the locally generated dataset.
+
+
+
+\section{Ethical Considerations}
+
+\subsection{Student Privacy in the Original Study}
+
+The original DKT study used records of school students' learning
+activity. \citet{piech2015deep} describe the Khan Academy records as
+anonymised and state that access was limited to the research team under
+an agreement to protect student privacy. The public ASSISTments
+benchmark made independent evaluation possible. Together, these
+datasets illustrate a tension in educational research. Sharing data
+makes results easier to verify, but a detailed sequence of responses
+may reveal a student's performance or allow someone with access to
+other records to identify them.
+
+\subsection{Secondary Use and Publication}
+
+The COMP1350 records were collected for course assessment and made
+available for this unit project with the data custodian's permission.
+Before extending the analysis for publication, I would confirm with
+the custodian that the proposed use is permitted and ask Macquarie
+University to determine the appropriate ethics pathway. The
+deidentified records may be eligible for an exemption, depending on
+the conditions of access and the risk of re-identification. If ethics
+review is required, I would work with the supervising researcher to
+submit an application. This process would also consider whether
+existing consent covers the proposed use or whether a waiver is
+needed. Chapter~3.1 of the \textit{National Statement} addresses
+secondary data use and identifiability, while Chapter~5.1 sets out
+the review and exemption pathways
+\citep{nhmrc2025nationalstatement}.\footnote{\href{https://www.mq.edu.au/research/our-research/research-ethics-and-integrity/human-ethics/applications-and-approvals}{Macquarie University guidance on human research ethics applications and approvals.}}
+
+A paper based on this project would include a dedicated ethics
+statement because it uses records of real learners. For COMP1350,
+the statement would explain how access was obtained, how student
+records were protected, and what could be shared publicly. It would
+also report the University's ethics determination and any approval
+or exemption reference number issued.
+
+For COMP1350, I would keep the source workbook and student-level
+outputs under restricted access, report aggregate results, and use
+simulated examples to illustrate the data format. For IDETrace,
+I used test execution outcomes and omitted original participant
+identifiers, submitted code and chat text from the model input.
+Before redistributing derived IDETrace records, I would check the
+source release terms and assess whether the records could be linked
+back to individuals. Sharing conversion scripts, simulation parameters
+and aggregate results would allow readers to inspect the method
+while protecting restricted records. This follows the
+\textit{Australian Code}'s responsibilities for secure record keeping
+and responsible dissemination (R22 and R23)
+\citep{nhmrc2018researchcode}.
+
+\subsection{Interpretation and Responsible Use of AI}
+
+The generated synthetic data contain no real student records.
+They provide a controlled test of prediction, but their results depend
+on assumptions about ability, practice and question difficulty.
+Likewise, the test AUC on real data measures how well DKT ranks
+correct and incorrect responses. Using those predictions to recommend
+exercises or make decisions about students would require separate
+evaluation of benefits and errors across learner groups, with
+educators able to review and override decisions. These safeguards
+reflect Macquarie University's AI policy on fairness, privacy and
+human oversight \citep{mq2025aipolicy}.
+
+The AUC scores reported here are calculated from recorded or
+simulated outcomes. If an LLM judge is used to assess whether
+learned relationships are educationally plausible, the study should
+document the model, prompt and judging criteria. The judge should
+receive synthetic or aggregate examples, and a researcher should
+check its explanations before using them as evidence
+\citep{mq2025aipolicy}.
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{custom,anthology-overleaf-1,anthology-overleaf-2}
+
+% Custom bibliography entries only
+\bibliography{custom}
+
+\appendix
+
+\section{Complete AUC Results}
+\label{app:all-auc-results}
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\hline
+& \multicolumn{2}{c}{This study}
+& \multicolumn{4}{c}{Published results} \\
+\cline{2-3}\cline{4-7}
+Dataset & 10 epochs & 50 epochs & LSTM DKT & BKT & BKT* & Marginal \\
+\hline
+\multicolumn{7}{@{}l}{\textit{Original datasets}} \\
+ASSISTments              & 0.841732 & 0.844855 & 0.86 & 0.67 & 0.69 & 0.62 \\
+Original synthetic       & 0.705676 & 0.810868 & 0.75 & 0.54 & ---  & ---  \\
+Khan Academy             & ---      & ---      & 0.85 & 0.68 & ---  & 0.63 \\
+\hline
+\multicolumn{7}{@{}l}{\textit{New datasets}} \\
+Generated synthetic      & 0.688169 & 0.712335 & --- & --- & --- & --- \\
+COMP1350                 & 0.739204 & 0.784670 & --- & --- & --- & --- \\
+IDETrace                 & 0.426267 & 0.483487 & --- & --- & --- & --- \\
+DBE-KT22                 & 0.776290 & 0.799563 & --- & --- & --- & --- \\
+\hline
+\end{tabular}
+\caption{Final test AUC for all runs in this study and the results
+reported in Table~1 of \citet{piech2015deep}. BKT is standard Bayesian
+Knowledge Tracing. BKT* is the best previously reported BKT result
+cited for ASSISTments. The marginal baseline predicts using the
+overall success rate for each exercise. Dashes indicate that no
+corresponding result is available from this study or the original
+paper.}
+\label{tab:all-auc-results}
+\end{table*}
+
+\section{Example Appendix}
+\label{sec:appendix}
+\section{ASSISTments Replication Results}
+\label{app:assistments-results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/assistments-training-summary.png}
+    \caption{Terminal output for the 10-epoch ASSISTments run.
+    The final test AUC was 0.841732.}
+    \label{fig:appendix-assistments-10-epochs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/assistments-50-epochs.png}
+    \caption{Terminal output for the 50-epoch ASSISTments run.
+    The final test AUC was 0.844855.}
+    \label{fig:appendix-assistments-50-epochs}
+\end{figure}
+
+\section{Synthetic Replication Results}
+\label{app:synthetic-results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/synthetic-10-epochs.png}
+    \caption{Original five-concept synthetic dataset after 10 epochs.
+    The final test AUC was 0.705676.}
+    \label{fig:synthetic-10-epochs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/synthetic-50-epochs.png}
+    \caption{Original five-concept synthetic dataset after 50 epochs.
+    The final test AUC was 0.810868.}
+    \label{fig:synthetic-50-epochs}
+\end{figure}
+
+\section{Results for the Generated Synthetic Dataset}
+\label{app:generated-synthetic-results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/generated-synthetic-10-epochs.png}
+    \caption{Terminal output for the locally generated synthetic
+    dataset after 10 epochs. The final test AUC was 0.688169.}
+    \label{fig:generated-synthetic-10-epochs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/generated-synthetic-50-epochs.png}
+    \caption{Terminal output for the locally generated synthetic
+    dataset after 50 epochs. The final test AUC was 0.712335.}
+    \label{fig:generated-synthetic-50-epochs}
+\end{figure}
+
+\section{COMP1350 Results}
+\label{app:comp1350-results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/comp1350-10-epochs.png}
+    \caption{Terminal output for the COMP1350 run after 10 epochs.
+    The final test AUC was 0.739204.}
+    \label{fig:comp1350-10-epochs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/comp1350-50-epochs.png}
+    \caption{Terminal output for the COMP1350 run after 50 epochs.
+    The final test AUC was 0.784670.}
+    \label{fig:comp1350-50-epochs}
+\end{figure}
+
+\section{DBE-KT22 Results}
+\label{app:dbekt22-results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/dbekt22-10-epochs.png}
+    \caption{Terminal output for the 10-epoch DBE-KT22 run.
+    The final test AUC was 0.776290.}
+    \label{fig:dbekt22-10-epochs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/dbekt22-50-epochs.png}
+    \caption{Terminal output for the 50-epoch DBE-KT22 run.
+    The final test AUC was 0.799563.}
+    \label{fig:dbekt22-50-epochs}
+\end{figure}
+
+\end{document}

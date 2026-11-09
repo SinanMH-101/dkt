@@ -1,0 +1,17 @@
+{
+  "source": "MathE dataset (4).csv",
+  "raw_rows": 9546,
+  "raw_students": 372,
+  "excluded_single_response_students": 22,
+  "students": 350,
+  "responses": 9524,
+  "questions": 833,
+  "median_responses_per_student": 14.0,
+  "train_students": 280,
+  "test_students": 70,
+  "train_responses": 7450,
+  "test_responses": 2074,
+  "seed": 8240,
+  "ordering": "Source CSV row order within each student; question-grouped export, no timestamps",
+  "scope": "Pipeline smoke test only; not an evaluation of chronological next-response prediction"
+}

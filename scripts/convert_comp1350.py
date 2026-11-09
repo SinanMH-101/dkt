@@ -48,6 +48,8 @@ def convert(source, sheet, output, train_fraction, seed, min_length):
     if conflicts.any():
         raise ValueError("Conflicting metadata in %d attempt steps" % conflicts.sum())
     steps = grouped[FIELDS].first().reset_index()
+
+    # A binary outcome is usable only when the step state and score agree.
     graded = steps[steps.state.isin(["gradedright", "gradedwrong"])].copy()
     complete = graded.dropna(subset=required).copy()
     expected = complete.state.map({"gradedright": 1, "gradedwrong": 0})
@@ -70,6 +72,7 @@ def convert(source, sheet, output, train_fraction, seed, min_length):
         raise ValueError("Need at least two eligible students for train/test splitting")
     student_ids = {student: index for index, student in enumerate(students)}
     clean["student_id"] = clean["Participant-ID"].map(student_ids)
+    # Step IDs break timestamp ties deterministically.
     clean = clean.sort_values(["student_id", "timestamp", "attemptstepid"])
 
     shuffled = list(range(len(students)))

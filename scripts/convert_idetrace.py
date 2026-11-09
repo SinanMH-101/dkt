@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def parse_run(event):
+    """Validate a test result and label the execution as a whole."""
     timestamp = event.get("timestamp")
     if isinstance(timestamp, bool) or not isinstance(timestamp, (int, float)) or not math.isfinite(timestamp):
         raise ValueError("missing_or_invalid_timestamp")
@@ -42,7 +43,10 @@ def parse_run(event):
     if type(passed_count) is not int or count != passed_count:
         raise ValueError("inconsistent_passed_count")
     rate = payload.get("passrate")
-    if isinstance(rate, bool) or not isinstance(rate, (int, float)) or not math.isfinite(rate) or abs(rate - 100.0 * count / total) > 0.51:
+    expected_rate = 100.0 * count / total
+    # The telemetry can round the reported pass percentage.
+    if (isinstance(rate, bool) or not isinstance(rate, (int, float))
+            or not math.isfinite(rate) or abs(rate - expected_rate) > 0.51):
         raise ValueError("inconsistent_passrate")
     return {"timestamp": timestamp, "session_id": event.get("sessionId"),
             "passed_tests": count, "total_tests": total, "correct": int(count == total)}
@@ -95,6 +99,7 @@ def convert(args):
     args.output_dir.mkdir(parents=True, exist_ok=True)
     dataset = args.output_dir / "idetrace.txt"
     audit = args.output_dir / "idetrace_runs.csv"
+    # Keep execution details in the audit file. DKT gets one exercise ID for this task.
     with dataset.open("w", encoding="ascii", newline="") as data, audit.open("w", encoding="utf-8", newline="") as details:
         writer = csv.writer(details)
         writer.writerow(["student_id", "exercise_id", "task", "step", "timestamp_ms", "session_id", "source_event_index", "passed_tests", "total_tests", "correct"])

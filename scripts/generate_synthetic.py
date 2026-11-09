@@ -23,8 +23,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def probability(ability, difficulty, guessing):
-    value = ability - difficulty
-    logistic = 1 / (1 + math.exp(-value)) if value >= 0 else math.exp(value) / (1 + math.exp(value))
+    margin = ability - difficulty
+    # Keep the exponent nonpositive so extreme ability scores do not overflow.
+    if margin >= 0:
+        logistic = 1 / (1 + math.exp(-margin))
+    else:
+        exp_margin = math.exp(margin)
+        logistic = exp_margin / (1 + exp_margin)
     return guessing + (1 - guessing) * logistic
 
 
@@ -57,25 +62,34 @@ def generate(args):
         writer.writerow(["student_id", "step", "question_id", "concept_id", "ability_before", "learning_rate", "difficulty", "probability_before_noise", "probability_observed", "response_before_noise", "noise_flipped", "correct"])
         for student in range(args.students):
             abilities = [structure.gauss(args.initial_ability, args.ability_sd) for _ in range(args.concepts)]
-            rate = structure.uniform(args.learning_rate * 0.5, args.learning_rate * 1.5)
-            student_parameters.append({"student_id": student, "initial_abilities": abilities[:], "learning_rate": rate})
+            learning_rate = structure.uniform(args.learning_rate * 0.5, args.learning_rate * 1.5)
+            student_parameters.append({
+                "student_id": student,
+                "initial_abilities": abilities[:],
+                "learning_rate": learning_rate,
+            })
             for step in range(args.sequence_length):
                 if step:
                     abilities = [a - args.forgetting for a in abilities]
                 question = structure.choice(questions)
                 concept = question["concept_id"]
                 ability = abilities[concept]
-                p = probability(ability, question["difficulty"], args.guessing)
-                latent_response = int(responses.random() < p)
+                correct_probability = probability(ability, question["difficulty"], args.guessing)
+                latent_response = int(responses.random() < correct_probability)
                 flipped = int(noise.random() < args.noise)
                 correct = latent_response ^ flipped
-                p_observed = args.noise + (1 - 2 * args.noise) * p
+                # Either a correct response survives the flip, or an incorrect one flips.
+                observed_probability = args.noise + (1 - 2 * args.noise) * correct_probability
                 data.write("%d %d %d\n" % (student, question["question_id"], correct))
-                writer.writerow([student, step, question["question_id"], concept, ability, rate, question["difficulty"], p, p_observed, latent_response, flipped, correct])
+                writer.writerow([
+                    student, step, question["question_id"], concept, ability, learning_rate,
+                    question["difficulty"], correct_probability, observed_probability,
+                    latent_response, flipped, correct,
+                ])
                 correct_total += correct
                 flipped_total += flipped
                 split_outcomes["train" if student in train_ids else "test"].add(correct)
-                abilities[concept] += rate
+                abilities[concept] += learning_rate
     (args.output_dir / "synthetic_split.txt").write_text(" ".join(assignments), encoding="ascii")
     config = {key: value for key, value in vars(args).items() if key != "output_dir"}
     metadata = {

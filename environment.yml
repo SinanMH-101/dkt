@@ -1,0 +1,10 @@
+name: dkt-legacy
+channels:
+  - defaults
+dependencies:
+  - python=2.7.18
+  - pip
+  - m2w64-toolchain
+  - libpython
+  - pip:
+      - -r .devcontainer/requirements-legacy.txt

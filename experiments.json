@@ -1,0 +1,56 @@
+[
+  {
+    "name": "assistments",
+    "dataset": "assistments.txt",
+    "split": "assistments_split.txt",
+    "hiddenUnits": 200,
+    "batchSize": 20,
+    "timeWindow": 100,
+    "recordedAuc": 0.844855
+  },
+  {
+    "name": "comp1350",
+    "dataset": "data/comp1350/comp1350.txt",
+    "split": "data/comp1350/comp1350_split.txt",
+    "hiddenUnits": 64,
+    "batchSize": 100,
+    "timeWindow": 12,
+    "recordedAuc": 0.784670
+  },
+  {
+    "name": "idetrace",
+    "dataset": "data/idetrace/idetrace.txt",
+    "split": "data/idetrace/idetrace_split.txt",
+    "hiddenUnits": 64,
+    "batchSize": 16,
+    "timeWindow": 34,
+    "recordedAuc": 0.483487
+  },
+  {
+    "name": "mathe",
+    "dataset": "data/mathe_file_order/mathe.txt",
+    "split": "data/mathe_file_order/mathe_split.txt",
+    "hiddenUnits": 32,
+    "batchSize": 20,
+    "timeWindow": 50,
+    "recordedAuc": 0.563887
+  },
+  {
+    "name": "synthetic",
+    "dataset": "data/synthetic_clean/synthetic.txt",
+    "split": "data/synthetic_clean/synthetic_split.txt",
+    "hiddenUnits": 200,
+    "batchSize": 100,
+    "timeWindow": 50,
+    "recordedAuc": 0.613879
+  },
+  {
+    "name": "piech",
+    "dataset": "data/synthetic_piech_comparison/naive_c5_q50_s4000_v0.txt",
+    "split": "data/synthetic_piech_comparison/naive_c5_q50_s4000_v0_split.txt",
+    "hiddenUnits": 200,
+    "batchSize": 100,
+    "timeWindow": 50,
+    "recordedAuc": 0.810868
+  }
+]
