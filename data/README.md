@@ -4,7 +4,7 @@ The repository includes the plain-text datasets and fixed student splits
 for the six bundled experiments in [experiments.json](../experiments.json),
 alongside additional prepared synthetic variants. DBE-KT22 is also listed in
 the experiment configuration and requires local preparation. The Assistments
-pair is at the repository root.
+pair is stored here as `assistments.txt` and `assistments_split.txt`.
 The COMP1350 and IDETrace inputs contain renumbered student IDs, exercise IDs,
 and binary outcomes. Raw sources and audit exports are kept separately.
 

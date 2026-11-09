@@ -1,8 +1,8 @@
 [
   {
     "name": "assistments",
-    "dataset": "assistments.txt",
-    "split": "assistments_split.txt",
+    "dataset": "data/assistments.txt",
+    "split": "data/assistments_split.txt",
     "hiddenUnits": 200,
     "batchSize": 20,
     "timeWindow": 100,
