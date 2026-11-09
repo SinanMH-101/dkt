@@ -47,6 +47,8 @@ def main():
                         default=20)
     parser.add_argument('--gemini-judge', action='store_true',
                         help='Send aggregate results to Gemini for review after training.')
+    parser.add_argument('--no-summary', action='store_true',
+                        help='Suppress the final results table.')
     args = parser.parse_args()
 
     dataset = args.dataset
@@ -152,7 +154,8 @@ def main():
                 output.write('%s\t%s\n' % (loss, test_auc))
 
     if history:
-        print_results(dataset, len(history), history[-1][1])
+        if not args.no_summary:
+            print_results(dataset, len(history), history[-1][1])
         if args.gemini_judge:
             sys.stdout.flush()
             judge_script = os.path.join(os.path.dirname(os.path.abspath(__file__)),

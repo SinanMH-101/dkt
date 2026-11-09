@@ -19,7 +19,7 @@ and binary outcomes. Raw sources and audit exports are kept separately.
 
 ## Regenerate the prepared files
 
-Run these commands if the source inputs change. The default experiments
+Run these commands if the source inputs change. The six bundled experiments
 use the prepared files in the repository. Use PowerShell from the root.
 
 ```powershell

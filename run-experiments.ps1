@@ -12,7 +12,7 @@ Train the DKT model on the prepared datasets and collect test AUCs.
 .EXAMPLE
 .\run-experiments.ps1 -Check
 #>
-[CmdletBinding()]
+[CmdletBinding(PositionalBinding = $false)]
 param(
     [ValidateNotNullOrEmpty()]
     [ValidateRange(1, [int]::MaxValue)]
@@ -70,6 +70,7 @@ if ($LASTEXITCODE -ne 0) {
 $runId = '{0:yyyy-MM-dd_HH-mm-ss-fff}' -f (Get-Date)
 $runDirectory = New-Item -ItemType Directory -Path "$PSScriptRoot/output/runs/$runId"
 $summary = Join-Path $runDirectory.FullName 'summary.csv'
+$reviewArgsByDataset = @{}
 $previousBackend = $env:KERAS_BACKEND
 $previousFlags = $env:THEANO_FLAGS
 try {
@@ -94,7 +95,7 @@ try {
         )
 
         Write-Host "`nRunning $($experiment.name) for $maxEpoch epoch(s); reporting epoch(s) $($epochCheckpoints -join ', ')"
-        & $Python -u "$PSScriptRoot/dkt.py" --epochs $maxEpoch @datasetArgs
+        & $Python -u "$PSScriptRoot/dkt.py" --epochs $maxEpoch --no-summary @datasetArgs
         if ($LASTEXITCODE -ne 0) {
             throw "Training failed for $($experiment.name). Run folder: $($runDirectory.FullName)"
         }
@@ -116,15 +117,7 @@ try {
         $rows | Export-Csv -LiteralPath $summary -NoTypeInformation -Append
 
         if ($reviewWithGemini) {
-            try {
-                & py -3 "$PSScriptRoot/scripts/judge_gemini.py" @datasetArgs
-                if ($LASTEXITCODE -ne 0) {
-                    throw "Judge exited with code $LASTEXITCODE."
-                }
-            }
-            catch {
-                Write-Warning "Gemini review failed for $($experiment.name). Training results are saved in $($folder.FullName). $($_.Exception.Message)"
-            }
+            $reviewArgsByDataset[$experiment.name] = $datasetArgs
         }
     }
 }
@@ -142,7 +135,7 @@ foreach ($experiment in $experiments) {
 $headers = @('Dataset', 'Completed epochs', 'Final test AUC')
 $widths = @($headers | ForEach-Object { $_.Length })
 $results = @(Import-Csv -LiteralPath $summary)
-$tableRows = foreach ($result in $results) {
+$tableRows = @(foreach ($result in $results) {
     $auc = [double]::Parse($result.test_auc, [Globalization.CultureInfo]::InvariantCulture)
     $cells = @($datasetFiles[$result.dataset], $result.epochs,
         $auc.ToString('F6', [Globalization.CultureInfo]::InvariantCulture))
@@ -150,7 +143,7 @@ $tableRows = foreach ($result in $results) {
         $widths[$i] = [Math]::Max($widths[$i], $cells[$i].Length)
     }
     ,$cells
-}
+})
 
 $border = '+' + (($widths | ForEach-Object { '-' * ($_ + 2) }) -join '+') + '+'
 Write-Host $border
@@ -160,4 +153,21 @@ foreach ($row in (,@($headers) + @($tableRows))) {
     }
     Write-Host ('| ' + ($padded -join ' | ') + ' |')
     Write-Host $border
+}
+
+if ($reviewWithGemini) {
+    foreach ($experiment in $experiments) {
+        $judgeArgs = $reviewArgsByDataset[$experiment.name]
+        Write-Host "`nReviewing $($experiment.name) with Gemini"
+        try {
+            & py -3 "$PSScriptRoot/scripts/judge_gemini.py" @judgeArgs
+            if ($LASTEXITCODE -ne 0) {
+                throw "Judge exited with code $LASTEXITCODE."
+            }
+        }
+        catch {
+            $datasetFolder = Join-Path $runDirectory.FullName $experiment.name
+            Write-Warning "Gemini review failed for $($experiment.name). Training results are saved in $datasetFolder. $($_.Exception.Message)"
+        }
+    }
 }

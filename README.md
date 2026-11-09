@@ -85,8 +85,9 @@ from the activated environment.
 
 ## Results
 
-Each invocation prints a bordered table with the dataset filename, completed
-epochs, and test AUC. It also writes `summary.csv` under a new `output/runs/`
+The runner prints one summary table after all selected datasets finish,
+with the dataset filename, completed epochs, and test AUC. It also writes
+`summary.csv` under a new `output/runs/`
 folder, with one row per dataset and requested epoch. The CSV also includes
 accumulated training loss and the previously recorded 50-epoch AUC. The
 dataset subfolders contain per-epoch histories and the final epoch's
@@ -102,7 +103,7 @@ predictions and model weights.
 | Generated synthetic | 0.613879 |
 | Piech five-concept matrix | 0.810868 |
 
-These values come from earlier runs with the included inputs and settings.
+These values come from earlier runs with the prepared inputs and settings.
 Training initializes weights and shuffles students randomly, so the AUCs
 can vary. MathE uses source-file order as a pipeline check.
 
@@ -140,7 +141,7 @@ The check prints the key source. A shell value takes precedence over
 ### Run a review
 
 Add `--gemini-judge` at the end of the runner command to review each
-selected dataset after its final epoch. Replace `idetrace` with any
+selected dataset after the results table prints. Replace `idetrace` with any
 dataset name listed above, or omit `-Dataset` to review all available datasets.
 
 ```powershell
