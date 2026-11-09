@@ -7,9 +7,8 @@ held-out students. The implementation follows the DKT model used in the
 ## Table of contents
 
 - [Run on Windows](#run-on-windows)
-  - [Run all six bundled datasets](#run-all-six-bundled-datasets)
+  - [Run all datasets](#run-all-datasets)
   - [Run one dataset at a time](#run-one-dataset-at-a-time)
-  - [Run DBE-KT22](#run-dbe-kt22)
 - [Results](#results)
 - [Review DKT results with Gemini](#review-dkt-results-with-gemini)
   - [Set up and test the API key](#set-up-and-test-the-api-key)
@@ -33,10 +32,12 @@ Anaconda Prompt and reopen PowerShell. The environment installs Python 2.7,
 the pinned training dependencies, and Theano's Windows compiler. Create
 the environment once and activate it in each new session.
 
-### Run all six bundled datasets
+### Run all datasets
 
-Run the script without a dataset argument. It trains each dataset in sequence
-for **50 epochs** by default.
+Run the script without a dataset argument to train each prepared dataset
+in sequence for **50 epochs** by default. This includes DBE-KT22 once its
+data and split are prepared locally. On a fresh checkout the runner skips
+DBE-KT22 until its files are available. [Dataset preparation instructions](data/README.md#dbe-kt22)
 
 ```powershell
 .\run-experiments.ps1 -Check
@@ -44,7 +45,7 @@ for **50 epochs** by default.
 ```
 
 The first command verifies that the prepared data and split files exist.
-Add `-Epochs 1` to the second command for a short run across all six.
+Add `-Epochs 1` to the second command for a short run across all available datasets.
 
 ### Run one dataset at a time
 
@@ -54,6 +55,7 @@ Choose the command for the dataset you want.
 .\run-experiments.ps1 -Dataset assistments
 .\run-experiments.ps1 -Dataset comp1350
 .\run-experiments.ps1 -Dataset idetrace
+.\run-experiments.ps1 -Dataset dbekt22
 .\run-experiments.ps1 -Dataset mathe
 .\run-experiments.ps1 -Dataset synthetic
 .\run-experiments.ps1 -Dataset piech
@@ -81,17 +83,6 @@ Python implementation. If PowerShell blocks the script, run
 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run-experiments.ps1`
 from the activated environment.
 
-### Run DBE-KT22
-
-To include DBE-KT22, prepare it locally and run it separately from the six
-bundled experiments. [DBE-KT22 preparation instructions](data/README.md#dbe-kt22)
-
-```powershell
-$env:KERAS_BACKEND = 'theano'
-$env:THEANO_FLAGS = 'device=cpu,floatX=float32,gcc.cxxflags=-march=core2'
-python dkt.py --dataset data/dbekt22/dbekt22.txt --splitfile data/dbekt22/dbekt22_split.txt --epochs 50 --hiddenunits 32 --batchsize 20 --timewindow 50
-```
-
 ## Results
 
 Each invocation prints a bordered table with the dataset filename, completed
@@ -106,6 +97,7 @@ predictions and model weights.
 | Assistments | 0.844855 |
 | COMP1350 | 0.784670 |
 | IDETrace | 0.483487 |
+| DBE-KT22 | 0.799563 |
 | MathE (file order) | 0.563887 |
 | Generated synthetic | 0.613879 |
 | Piech five-concept matrix | 0.810868 |
@@ -147,34 +139,27 @@ The check prints the key source. A shell value takes precedence over
 
 ### Run a review
 
-Add `--gemini-judge` to a direct `dkt.py` command to request one review
-after the final epoch. This example uses the prepared
-[DBE-KT22 dataset](data/README.md#dbe-kt22).
+Add `--gemini-judge` at the end of the runner command to review each
+selected dataset after its final epoch. Replace `idetrace` with any
+dataset name listed above, or omit `-Dataset` to review all available datasets.
 
 ```powershell
-conda activate dkt-legacy
-$env:KERAS_BACKEND = 'theano'
-$env:THEANO_FLAGS = 'device=cpu,floatX=float32,gcc.cxxflags=-march=core2'
-python dkt.py --dataset data/dbekt22/dbekt22.txt --splitfile data/dbekt22/dbekt22_split.txt --epochs 50 --hiddenunits 32 --batchsize 20 --timewindow 50 --gemini-judge
+.\run-experiments.ps1 -Dataset idetrace -Epochs 1 --gemini-judge
 ```
 
-If the run already has `.preds` and `.history` files alongside the
-dataset, you can review it without retraining. Use the settings from that run.
-
-```powershell
-py -3 scripts/judge_gemini.py --dataset data/dbekt22/dbekt22.txt --splitfile data/dbekt22/dbekt22_split.txt --hiddenunits 32 --batchsize 20 --timewindow 50
-```
-
-Add `--dry-run` to the standalone command to inspect the exact aggregate
-evidence locally without making an API request.
+To review a saved run without retraining, use
+`py -3 scripts/judge_gemini.py --dataset <dataset-path> --splitfile <split-path>`
+with the dataset copy from the run folder and its original split file.
+The saved `.preds` and `.history` must be beside the dataset copy.
+Add `--dry-run` to preview the aggregate evidence locally.
 
 ### Read the assessment
 
-The script prints Gemini's verdict and assessment and saves the full review,
-including suggested checks, beside the dataset. For the example above, the
-report is `data/dbekt22/dbekt22.txt.gemini.json`. If Gemini fails after
-training, the saved training outputs can still be reviewed with the standalone
-command.
+The script prints Gemini's verdict and assessment. The JSON report and
+suggested checks are saved beside the dataset copy, for example at
+`output/runs/<run-id>/idetrace/idetrace.txt.gemini.json`. If a review
+fails, the runner reports a warning and continues with the training results
+already saved.
 
 Gemini receives the dataset context, training settings, split counts, AUC
 history, log loss, Brier score, calibration summaries, and a baseline based

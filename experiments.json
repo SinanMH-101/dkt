@@ -27,6 +27,16 @@
     "recordedAuc": 0.483487
   },
   {
+    "name": "dbekt22",
+    "dataset": "data/dbekt22/dbekt22.txt",
+    "split": "data/dbekt22/dbekt22_split.txt",
+    "hiddenUnits": 32,
+    "batchSize": 20,
+    "timeWindow": 50,
+    "recordedAuc": 0.799563,
+    "requiresLocalPreparation": true
+  },
+  {
     "name": "mathe",
     "dataset": "data/mathe_file_order/mathe.txt",
     "split": "data/mathe_file_order/mathe_split.txt",

@@ -6,6 +6,8 @@ Train the DKT model on the prepared datasets and collect test AUCs.
 .EXAMPLE
 .\run-experiments.ps1 -Dataset idetrace -Epochs 1
 .EXAMPLE
+.\run-experiments.ps1 -Dataset idetrace -Epochs 1 --gemini-judge
+.EXAMPLE
 .\run-experiments.ps1 -Dataset comp1350,idetrace -Epochs 10,20,50
 .EXAMPLE
 .\run-experiments.ps1 -Check
@@ -18,10 +20,15 @@ param(
     [string[]]$Dataset,
     [switch]$Check,
     [switch]$NoCompiler,
-    [string]$Python = 'python'
+    [switch]$GeminiJudge,
+    [string]$Python = 'python',
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [ValidateSet('--gemini-judge')]
+    [string[]]$ExtraOptions
 )
 
 $ErrorActionPreference = 'Stop'
+$reviewWithGemini = $GeminiJudge -or ($ExtraOptions -contains '--gemini-judge')
 $epochCheckpoints = @($Epochs | Sort-Object -Unique)
 $maxEpoch = $epochCheckpoints[-1]
 $experiments = Get-Content -LiteralPath "$PSScriptRoot/experiments.json" -Raw |
@@ -34,14 +41,19 @@ if ($Dataset) {
     $experiments = @($experiments | Where-Object { $_.name -in $Dataset })
 }
 
-# Check every selected dataset before starting a potentially long training run.
-$missing = foreach ($experiment in $experiments) {
-    foreach ($file in @($experiment.dataset, $experiment.split)) {
-        if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot $file) -PathType Leaf)) {
-            $file
-        }
+# Check inputs before training. A default run can skip data absent from a fresh checkout.
+$missing = @()
+$experiments = @(foreach ($experiment in $experiments) {
+    $missingInputs = @(@($experiment.dataset, $experiment.split) | Where-Object {
+        -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot $_) -PathType Leaf)
+    })
+    if (-not $Dataset -and $experiment.requiresLocalPreparation -and $missingInputs.Count -eq 2) {
+        Write-Host "Skipping $($experiment.name). See data/README.md to prepare its files locally."
+        continue
     }
-}
+    $missing += $missingInputs
+    $experiment
+})
 if ($missing) {
     throw "Missing prepared files: $($missing -join ', '). Check your checkout or see data/README.md."
 }
@@ -75,14 +87,14 @@ try {
         $localDataset = Join-Path $folder.FullName (Split-Path $source -Leaf)
         Copy-Item -LiteralPath $source -Destination $localDataset
         $split = Join-Path $PSScriptRoot $experiment.split
-        $trainingArgs = @(
-            "$PSScriptRoot/dkt.py", '--dataset', $localDataset, '--splitfile', $split,
-            '--epochs', $maxEpoch, '--hiddenunits', $experiment.hiddenUnits,
+        $datasetArgs = @(
+            '--dataset', $localDataset, '--splitfile', $split,
+            '--hiddenunits', $experiment.hiddenUnits,
             '--batchsize', $experiment.batchSize, '--timewindow', $experiment.timeWindow
         )
 
         Write-Host "`nRunning $($experiment.name) for $maxEpoch epoch(s); reporting epoch(s) $($epochCheckpoints -join ', ')"
-        & $Python -u @trainingArgs
+        & $Python -u "$PSScriptRoot/dkt.py" --epochs $maxEpoch @datasetArgs
         if ($LASTEXITCODE -ne 0) {
             throw "Training failed for $($experiment.name). Run folder: $($runDirectory.FullName)"
         }
@@ -102,6 +114,18 @@ try {
             }
         }
         $rows | Export-Csv -LiteralPath $summary -NoTypeInformation -Append
+
+        if ($reviewWithGemini) {
+            try {
+                & py -3 "$PSScriptRoot/scripts/judge_gemini.py" @datasetArgs
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Judge exited with code $LASTEXITCODE."
+                }
+            }
+            catch {
+                Write-Warning "Gemini review failed for $($experiment.name). Training results are saved in $($folder.FullName). $($_.Exception.Message)"
+            }
+        }
     }
 }
 finally {
