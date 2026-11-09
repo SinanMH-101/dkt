@@ -19,7 +19,7 @@ held-out students. The implementation follows the DKT model used in the
 ## Run on Windows
 
 Clone this repository and open PowerShell in the repository root. The
-prepared data and fixed student splits for the six bundled experiments are
+prepared data and fixed student splits for the bundled experiments are
 included. Install Miniconda, then create and activate the training environment.
 
 ```powershell
@@ -56,7 +56,6 @@ Choose the command for the dataset you want.
 .\run-experiments.ps1 -Dataset comp1350
 .\run-experiments.ps1 -Dataset idetrace
 .\run-experiments.ps1 -Dataset dbekt22
-.\run-experiments.ps1 -Dataset mathe
 .\run-experiments.ps1 -Dataset synthetic
 .\run-experiments.ps1 -Dataset piech
 ```
@@ -99,13 +98,12 @@ predictions and model weights.
 | COMP1350 | 0.784670 |
 | IDETrace | 0.483487 |
 | DBE-KT22 | 0.799563 |
-| MathE (file order) | 0.563887 |
 | Generated synthetic | 0.613879 |
 | Piech five-concept matrix | 0.810868 |
 
 These values come from earlier runs with the prepared inputs and settings.
 Training initializes weights and shuffles students randomly, so the AUCs
-can vary. MathE uses source-file order as a pipeline check.
+can vary.
 
 ## Review DKT results with Gemini
 
