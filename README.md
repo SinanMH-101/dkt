@@ -98,7 +98,7 @@ predictions and model weights.
 | COMP1350 | 0.784670 |
 | IDETrace | 0.483487 |
 | DBE-KT22 | 0.799563 |
-| Generated synthetic | 0.613879 |
+| Generated synthetic | 0.712335 |
 | Piech five-concept matrix | 0.810868 |
 
 These values come from earlier runs with the prepared inputs and settings.
